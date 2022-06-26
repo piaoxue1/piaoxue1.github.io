@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/>
+    <title>近年碳排放数据</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/app.css"/>
+</head>
+
+<body class="bg06">
+<header class="header">
+    <h3>碳排放可视化</h3>
+</header>
+
+<div class="wrapper">
+    <div class="container-fluid">
+        <div class="row fill-h">
+            <div class="col-lg-3 fill-h">
+                <div class="xpanel-wrapper xpanel-wrapper-1-2">
+                    <div class="xpanel">
+                        <div class="fill-h" id="radarChart"></div>
+                    </div>
+                </div>
+                <div class="xpanel-wrapper xpanel-wrapper-1-2">
+                    <div class="xpanel">
+                        <div class="fill-h" id="flatterChart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 fill-h">
+                <div class="xpanel-wrapper xpanel-wrapper-1">
+                    <div class="xpanel no-padding no-bg">
+                        <div class="fill-h" id="roundChart"></div>
+                        <div class="fill-h" id="stackChart"></div>
+                    </div>
+                </div>
+                <!--   <div class="xpanel-wrapper xpanel-wrapper-2-4">
+                       <div class="xpanel no-padding no-bg">
+                           <div class="fill-h" id=""></div>
+                       </div>
+                   </div>-->
+
+            </div>
+            <div class="col-lg-3 fill-h">
+                <div class="xpanel-wrapper xpanel-wrapper-2-3">
+                    <div class="xpanel">
+                        <div class="fill-h" id="funnelChart"></div>
+                    </div>
+                </div>
+                <div class="xpanel-wrapper xpanel-wrapper-1-3">
+                    <div class="xpanel">
+                        <div class="fill-h" id="lineChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="js/echarts-3.8.5.min.js"></script>
+<script type="text/javascript" src="js/echarts-liquidfill.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        /***
+         @雷达图
+         ***/
+        const radarChart = echarts.init(document.getElementById("radarChart"));
+        //指定图表的配置项和数据
+        const radarOption = {  //指定图表的配置项和数据
+            // backgroundColor: 'rgba(204,204,204,0.7)',  //配置背景色，默认无背景
+            title: {  //配置标题组件
+                text: '2010与2020五国石油产生碳排放量对比',
+                left: 'center',
+                y:0,
+                target: 'blank', textStyle: {color: 'black', fontSize: 15,},
+                subtext: '单位：百万吨',
+            },
+
+            toolbox: {  //配置第2个图表的工具箱组件
+                show: true, orient: 'vertical', right: '5%', bottom: '10%',
+                feature: {
+                    dataView: {show:true},
+                    mark: {show: true}, restore: {show: true}, saveAsImage: {show: true},
+                    magicType: {show: false, type: ['line', 'bar', 'stack', 'tiled']}
+                }
+            },
+            legend: {  //配置图例组件
+                show: true,  //设置是否显示图例
+                icon: 'rect',  //icon.'circle'|'rect'|'roundRect'|'triangle'|'diamond'|'pin'|'arrow'|'none'
+                top: '25',  //设置图例距离顶部边距
+                left: 360,  //设置图例距离左侧边距
+                itemWidth: 10,  //设置图例标记的图形宽度
+                itemHeight: 10,  //设置图例标记的图形高度
+                itemGap: 30,  //设置图例每项之间的间隔
+                orient: 'horizontal',  //设置图例列表的布局朝向，'horizontal'|'vertical'
+                textStyle: {fontSize: 15, color: '#fff'}, //设置图例的公用文本样式
+                data: [  //设置图例的数据数组，数组项通常为字符串，每项代表一个系列name
+                    {
+                        name: '2010', icon: 'rect',
+                        textStyle: {color: '#0596FF', fontWeight: 'bold'}
+                    },  //设置图例项的文本样式
+                    {
+                        name: '2020', icon: 'rect',
+                        textStyle: {color: '#ea7ccc', fontWeight: 'bold'}
+                    }  //'normal'|'bold'|'bolder'|'lighter'
+                ],
+            },
+            tooltip: {  //配置详情提示框组件
+                //设置雷达图的tooltip不会超出div，也可设置position属性
+                //设置定位不会随着鼠标移动而变化
+                confine: true,  //设置是否将tooltip框限制在图表的区域内
+                enterable: true,  //设置鼠标是否可以移动到tooltip区域内
+            },
+            radar: [{  //配置雷达图坐标系组件，只适用于雷达图
+                center: ['50%', '56%'],  //设置中心坐标，数组的第1项是横坐标，第2项是纵坐标
+                radius: 100,  //设置圆的半径，数组的第一项是内半径，第二项是外半径
+                startAngle: 90,  //设置坐标系起始角度，也就是第一个指示器轴的角度
+                name: {  //设置（圆外的标签）雷达图每个指示器名称
+                    formatter: '{value}',
+                    textStyle: {fontSize: 15, color: '#5c7bd9'}
+                },
+                nameGap: 2,  //设置指示器名称和指示器轴的距离，默认为15
+                splitNumber: 2,  //设置指示器轴的分割段数，default
+                //shape:'circle',  //设置雷达图绘制类型，支持'polygon','circle'
+                //设置坐标轴轴线设置
+                axisLine: {lineStyle: {color: '#fff', width: 1, type: 'solid',}},
+                //设置坐标轴在grid区域中的分隔线
+                splitLine: {lineStyle: {color: '#fff', width: 1,}},
+                splitArea: {
+                    show: true,
+                    areaStyle: {color: ['#FAC858', '#91CC75']}
+                },  //设置分隔区域的样式
+                indicator: [  //配置雷达图指示器，指定雷达图中的多个变量，跟data中value对应
+                    {name: 'America', max: 4323}, {name: 'China', max: 3156},
+                    {name: 'India', max: 1277}, {name: 'Japan', max: 793},
+                    //设置指示器的名称，最大值，标签的颜色
+                    {name: 'Russia', max: 788}]
+            }],
+            series: [{
+                name: '雷达图',  //系列名称，用于tooltip的显示，图例筛选
+                type: 'radar',  //系列类型: 雷达图
+                //拐点样式，'circle'|'rect'|'roundRect'|'triangle'|'diamond'|'pin'|'arrow'|'none'
+                symbol: 'triangle',
+                itemStyle: {  //设置折线拐点标志的样式
+                    normal: {lineStyle: {width: 1}, opacity: 0.2},  //设置普通状态时的样式
+                    emphasis: {lineStyle: {width: 5}, opacity: 1}  //设置高亮时的样式
+                },
+                data: [  //设置雷达图的数据是多变量(维度)
+                    {   //设置第1个数据项
+                        name: '2010',  //数据项名称
+                        value: [2251, 1093, 438, 522, 332],  //value是具体数据
+                        symbol: 'triangle',
+                        symbolSize: 5,  //设置单个数据标记的大小
+                        //设置拐点标志样式
+                        itemStyle: {normal: {borderColor: '#5470C6', borderWidth: 3}},
+                        //设置单项线条样式
+                        lineStyle: {normal: {color: '#9A60B4', width: 1, opacity: 0.9}},
+                        //areaStyle: {normal:{color:'red'}}  //设置单项区域填充样式
+                    },
+                    {   //设置第1个数据项
+                        name: '2020',  //数据项名称
+                        value: [2021, 1612, 603, 377, 389],  //value是具体数据
+                        symbol: 'triangle',
+                        symbolSize: 5,  //设置单个数据标记的大小
+                        //设置拐点标志样式
+                        itemStyle: {normal: {borderColor: '#5470C6', borderWidth: 3}},
+                        //设置单项线条样式
+                        lineStyle: {normal: {color: '#9A60B4', width: 1, opacity: 0.9}},
+                        //areaStyle: {normal:{color:'red'}}  //设置单项区域填充样式
+                    },
+                ]
+            },]
+        };
+        //使用刚指定的配置项和数据显示图表
+        radarChart.setOption(radarOption);
+        radarChart.hideLoading();
+        $(window).resize(function () {
+            radarOption.resize();
+        });
+
+
+        /***
+         @散点图
+         ***/
+        const flatterChart = echarts.init(document.getElementById("flatterChart"));
+        //指定图表的配置项和数据
+        const data = [
+            [10668, 0.4, 1439323776, 'China', 2020],
+            [4713, 0.3, 331002651, 'America', 2020],
+            [2599, 0.2, 445250514, 'EU27', 2020],
+            [2442, 0.3, 1380004385, 'India', 2020],
+            [590, 0.2, 273523615, 'Indonesia', 2020],
+            [1031, 0.2, 126476461, 'Japan', 2020],
+            [467, 0.2, 212559417, 'Brazil', 2020],
+            [1577, 0.5, 145934462, 'Russia', 2020],
+            [393, 0.2, 84339067, 'Turkey', 2020],
+            [745, 0.5, 83992949, 'Iran', 2020],];
+        const flatterOption = {
+            title: {x: 0, y: 0, text: '2020年国家总碳排放量与GDP碳排放量的关系',
+                textStyle:{fontSize:15}},
+            legend: {x: 0, y: 15, right: 10, data: ['2020']},
+            grid: {
+                top: '20%',  // 组件离容器上侧的距离,百分比字符串或整型数字
+                left: '5%',    // 组件离容器左侧的距离,百分比字符串或整型数字
+                right: '12%',
+                bottom: '3%',
+                containLabel: true //grid 区域是否包含坐标轴的刻度标签，
+            },
+            dataZoom:{
+              type: 'inside',
+                start:10,
+                end:60,
+            },
+            toolbox: {  //配置第2个图表的工具箱组件
+                show: true, orient: 'vertical', right: '1%', top: '15%',
+                feature: {
+                    dataView:{show:true},
+                    mark: {show: true}, restore: {show: true}, saveAsImage: {show: true},
+                    magicType: {show: false, type: ['line', 'bar', 'stack', 'tiled']}
+                }
+            },
+            xAxis: {
+                offset:0,
+                splitLine: {lineStyle: {type: 'dashed'}}, name: '总排'+'\n'+'放量'},
+            yAxis: {splitLine: {lineStyle: {type: 'dashed'}}, scale: true, name: 'KgCO2/GDP',textStyle:{fontSize:2}},
+            series: [
+                {
+                    name: '2020', data: data, type: 'scatter',
+                    symbolSize: function (data) {
+                        return Math.sqrt(data[2]) / 5e2;
+                    },
+                    label: {
+                        emphasis: {
+                            show: true, position: 'top',
+                            color:'red',
+                            formatter: function (param) {
+                                return (param.data[3] + '\n'
+                                    + param.data[0] + "  MtCO2" + "\n"
+                                    + param.data[1] + "  kgCO2/GDP" +
+                                    "\n" + param.data[2] + "  pop");
+                            }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            shadowBlur: 0, shadowOffsetY: 0,
+                            shadowColor: 'rgba(25, 100, 150, 0.5)',
+                            color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [
+                                {offset: 0, color: '#7ed3f4'},
+                                {offset: 1, color: '#ffdc60'}])
+                        }
+                    }
+                }]
+        };
+        //使用刚指定的配置项和数据显示图表
+        flatterChart.setOption(flatterOption);
+        //使用刚指定的配置项和数据显示图表
+        $(window).resize(function () {
+            flatterOption.resize();
+        });
+
+
+        /***
+         @折线图
+         ***/
+        const lineChart = echarts.init(document.getElementById("lineChart"));
+        //指定图表的配置项和数据
+        lineChart.showLoading({
+                text: 'loading.......',
+                color: 'blue',
+                textColor: 'red',
+                maskColor: 'rgba(160,255,255,0.2)'
+            }
+        );
+        $.get("CO2_GDP.json").done(function (data) {
+            setTimeout(function () {
+                lineChart.hideLoading();
+                const dd = JSON.parse(data);
+                const China1 = [];
+                for (let i = 1; i < dd.data.length; i += 2) {
+                    China1.push(dd.data[i].China);
+                }
+                lineChart.setOption({
+                    title: {	//配置标题组件
+                        text: "中国2002-2020每千克二氧化碳GDP变化趋势",  //设置主标题
+                        textStyle: {  //设置主标题文字样式
+                            color: 'black',
+                            fontSize: 15,
+                        },
+                        x: 'center'
+                    },
+                    toolbox: {  //配置第2个图表的工具箱组件
+                        show: true, orient: 'vertical', right: '5%', top: '15%',
+                        feature: {
+                            dataView:{show:true},
+                            mark: {show: true}, restore: {show: true}, saveAsImage: {show: true},
+                            magicType: {show: false, type: ['line', 'bar', 'stack', 'tiled']}
+                        }
+                    },
+                    tooltip: {  //配置提示框组件
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data: ['kgCO2/GDP'],
+                        left: 'right',
+                        top: 30
+                    },
+                    xAxis: [
+                        //配置X轴坐标轴
+                        {
+                            type: 'category',
+                            data: ['2002', '2004', '2006', '2008', '2010', '2012', '2014', '2016', '2018', '2020']
+                        },
+                        {
+                            axisLabel: {  //设置坐标轴标签
+                                show: true,  //设置坐标轴标签是否显示
+                                inside: false,  //设置坐标轴标签是否朝内
+                                rotate: 60,  //设置旋转角度
+                                margin: 5,
+                            },
+                        },
+                    ],
+                    yAxis: [  //配置Y轴坐标轴
+                        {
+                            type: 'value',
+                        }
+                    ],
+                    series: [  //配置数据系列
+
+                        {
+                            name: 'kgCO2/GDP',
+                            type: 'line',  //设置指定显示为折线
+                            data: China1,
+                        },
+                    ]
+                });
+                //使用刚指定的配置项和数据显示图表
+            }, 2000);
+        });
+        $(window).resize(function () {
+            columnOption.resize();
+        });
+
+
+        /**
+         * @联动图：饼图、柱状图
+         */
+        const roundChart = echarts.init(document.getElementById("roundChart"));
+        $.get("year_avg.json").done(function (data) {
+            const dd = JSON.parse(data);
+            const year = [];
+            const China = [];
+            const America = [];
+            const Russian = [];
+            const Japan = [];
+            const Iran = [];
+            const Germany = [];
+            const Canada = [];
+            const Mexico = [];
+            const Arabia = [];
+            const UK = [];
+            const US = [];
+            const total = [];
+            for (let i = 0; i < dd.data.length; i++) {
+                year.push(dd.data[i].year);
+                China.push(dd.data[i].China);
+                America.push(dd.data[i].US);
+                Germany.push(dd.data[i].Germany);
+                Russian.push(dd.data[i].Russian);
+                Japan.push(dd.data[i].Japan);
+                Iran.push(dd.data[i].Iran);
+                Canada.push(dd.data[i].Canada);
+                Mexico.push(dd.data[i].Mexico);
+                Arabia.push(dd.data[i].Arabia);
+                UK.push(dd.data[i].UK);
+                US.push(dd.data[i].US);
+                total.push(dd.data[i].total);
+            }
+            const roundOption = {  //指定第1个图表option1的配置项和数据
+                color: ['#5470C6', '#91CC75', '#FAC858', '#EE6666', '#73C0DE', '#3BA272', '#FC8452', '#9A60B4'],
+                // backgroundColor: 'rgba(128, 128, 128, 0.1)',  //配置背景色，rgba设置透明度0.1
+                title: {text: '2016-2020十国陆地人均碳排放量', x: 'center', y: 12,
+                    subtext: '单位：百万吨'
+                },
+                tooltip: {
+                    trigger: "item", formatter: "{a}<br/>{b}:{c}({d}%)",
+                },
+                toolbox: {  //配置第2个图表的工具箱组件
+                    show: true, orient: 'vertical', right: '20%', top: '15%',
+                    feature: {
+                        dataView:{show:true},
+                        mark: {show: true}, restore: {show: true}, saveAsImage: {show: true},
+                        magicType: {show: false, type: ['line', 'bar', 'tiled']}
+                    }
+                },
+                legend: {
+                    orient: 'vertical', x: 15, y: 15,
+                    data: ['2016', '2017', '2018', '2019', '2020']
+                },
+                series: [{  //配置第1个图表的数据系列
+                    name: '十国人均排放量年度总和:', type: 'pie',
+                    radius: '70%', center: ['50%', 190],
+                    data: [
+                        {value: total[0], name: '2016'}, {value: total[1], name: '2017'},
+                        {value: total[2], name: '2018'}, {value: total[3], name: '2019'},
+                        {value: total[4], name: '2020'}]
+                }]
+            };
+            roundChart.setOption(roundOption);  //使用指定的配置项和数据显示饼图
+            //基于准备好的dom，初始化ECharts图表
+            const stackChart = echarts.init(document.getElementById("stackChart"));
+            const stackOption = {  //指定第2个图表的配置项和数据
+                color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc', '#b5bd48'],
+                // backgroundColor: 'rgba(128, 128, 128, 0.1)',  //配置背景色，rgba设置透明度0.1
+                tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},  //配置提示框组件
+                legend: {  //配置图例组件
+                    // left: 42, top: 25,
+                    data: ['Canada', 'China', 'Germany', 'Iran', 'Japan', 'Mexico', 'Russian', 'Arabia', 'UK', 'UK', 'US']
+                },
+                toolbox: {  //配置第2个图表的工具箱组件
+                    show: true, orient: 'vertical', right: '5%', top: '15%',
+                    feature: {
+                        mark: {show: true}, restore: {show: true}, saveAsImage: {show: true},
+                        magicType: {show: true, type: ['line', 'bar', 'tiled']}
+                    }
+                },
+                xAxis: [{
+                    type: 'category',
+                    data: ['2016', '2017', '2018', '2019', '2020']
+                }],  //配置第2个图表的x轴坐标系
+                yAxis: [{type: 'value', splitArea: {show: true}}],  //配置第2个图表的y轴坐标系
+                series: [  //配置第2个图表的数据系列
+                    {name: 'Canada', type: 'bar', stack: 'a', data: Canada, barWidth: 30,},
+                    {name: 'China', type: 'bar', stack: 'a', data: China},
+                    {name: 'Germany', type: 'bar', stack: 'a', data: Germany},
+                    {name: 'Iran', type: 'bar', stack: 'a', data: Iran},
+                    {name: 'Japan', type: 'bar', stack: 'a', data: Japan},
+                    {name: 'Mexico', type: 'bar', stack: 'a', data: Mexico},
+                    {name: 'Arabia', type: 'bar', stack: 'a', data: Arabia},
+                    {name: 'UK', type: 'bar', stack: 'a', data: UK},
+                    {name: 'US', type: 'bar', stack: 'a', data: US},
+                    {name: 'Russian', type: 'bar', stack: 'a', data: Russian},
+                ]
+            };
+            stackChart.setOption(stackOption);  //使用指定的配置项和数据显示堆叠柱状图
+            //多图表联动配置方法1：分别设置每个echarts对象的group值
+            // roundChart.group = 'group1';
+            // stackChart.group = 'group1';
+            // echarts.connect('group1');
+            //多图表联动配置方法2：直接传入需要联动的echarts对象myChart1，myChart2
+            echarts.connect([roundChart, stackChart]);
+        });
+
+
+        /**
+         * @漏斗图
+         */
+        const funnelChart = echarts.init(document.getElementById("funnelChart"));
+        //指定图表的配置项和数据
+        const funnelOption = {  //指定图表的配置项和数据
+            color: ['#ea7ccc', '#ffdc60', '#9fe080',
+                '#ff7070', '#7ed3f4', 'rgba(33,33,30,0.5)',
+                'rgba(255,66,0,0.5)', 'rgba(155,23,31,0.5)', 'rgba(23,44,55,0.5)'],
+            //配置标题组件
+            title: {left: 'center', top: 0, textStyle: {color: 'black'}, text: '2020中国碳排放因素'},
+            // backgroundColor: 'rgba(128, 128, 128, 0.1)',  //rgba设置透明度0.1
+            tooltip: {trigger: 'item', formatter: "{a} <br/>{b} : {c}%"},  //配置提示框组件
+            toolbox: {
+                right: 20, top: 0,orient: 'vertical',
+                feature: {
+                    dataView: {readOnly: false},
+                    restore: {}, saveAsImage: {},mark: {show: true},
+                }
+            },  //配置工具箱组件
+            legend: {
+                left: 'center', top: 30, data: ['煤', '石油',
+                    '水泥', '天然气']
+            },  //配置图例组件
+            calculable: true,
+            series: [  //配置数据系列
+                {
+                    name: '2020中国碳排放因素', type: 'funnel',
+                    sort: 'descending',  //金字塔:'ascending'; 漏斗图:'descending'
+                    left: 'center', bottom: 0, width: '80%',top:65,
+                    min: 0, max: 100,
+                    minSize: '0%',  //设置每一块的最小宽度
+                    maxSize: '100%',  //设置每一块的最大，一次去除掉尖角
+                    gap: 2,  //设置每一块之间的间隔
+                    label: {show: true, position: 'inside'},  //设置标签显示在里面|外面
+                    labelLine: {
+                        length: 10,  //设置每一块的名字前面的线的长度
+                        lineStyle: {
+                            width: 1,  //设置每一块的名字前面的线的宽度
+                            type: 'solid'//设置每一块的名字前面的线的类型
+                        }
+                    },
+                    itemStyle: {
+                        normal: {  //设置图形在正常状态下的样式
+                            label: {show: true, fontSize: 15, color: 'blue', position: 'inside',},
+                            borderColor: '#fff',  //设置每一块的边框颜色
+                            borderWidth: 0,  //设置每一块边框的宽度
+                            // shadowBlur: 50,  //设置整个外面的阴影厚度
+                            // shadowOffsetX: 0,  //设置每一块的y轴的阴影
+                            // shadowOffsetY: 50,  //设置每一块的x轴的阴影
+                            // shadowColor: 'rgba(0,255,0,0.4)'//设置阴影颜色
+                        }
+                    },
+                    //设置鼠标hover时高亮样式
+                    emphasis: {label: {fontFamily: "楷体", color: 'green', fontSize: 28}},
+                    data: [  //设置在漏斗图中展示的数据
+                        {value: 5.76, name: '天然气'}, {value: 15.36, name: '石油'},
+                        {value: 70.70, name: '煤'}, {value: 8.17, name: '水泥'},]
+                }
+            ]
+        };
+        //使用刚指定的配置项和数据显示图表
+        funnelChart.setOption(funnelOption);
+    });
+</script>
+</body>
+</html>
